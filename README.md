@@ -22,4 +22,4 @@ Este projeto é um workflow de automação que transforma links de vídeos do Yo
 4.  Divirta-se!
 
 ---
-Desenvolvido por [Seu Nome]
+Desenvolvido por Fabricio Navarro Meira
