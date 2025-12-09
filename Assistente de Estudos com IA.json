@@ -1,0 +1,218 @@
+{
+  "name": "Assistente de Estudos com IA",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "IA de Estudos",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "youtube_url",
+              "placeholder": "Cole o link do youtube aqui",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        0
+      ],
+      "id": "79b74acb-52e0-496c-9051-ffc43261fdcf",
+      "name": "On form submission",
+      "webhookId": "01e990d8-d68e-4c6d-938f-aa93582d298e"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Você é um Professor Universitário Especialista e Mentor Técnico.\nSua missão é transformar a transcrição bruta de uma vídeo-aula em um Material de Estudo Completo e Profundo.\n\nAnalise a seguinte transcrição com extremo rigor:\n\"\"\"\n{{ $json.text }}\n\"\"\"\n\nGere um documento estruturado em Markdown (compatível com Notion) seguindo ESTRITAMENTE esta estrutura:\n\n# 📚 [Crie um Título Atrativo e Técnico para a Aula]\n\n## 🎯 Resumo Executivo Profundo\n(Não seja breve. Escreva de 2 a 3 parágrafos densos explicando o contexto geral, o problema resolvido na aula e a solução proposta. Use linguagem técnica e formal.)\n\n## 🔑 Mapeamento de Conceitos (Detalhamento)\n(Liste de 5 a 8 conceitos principais citados. Para cada um, dê uma explicação detalhada de pelo menos 3 linhas.)\n- **Conceito 1:** Explicação...\n- **Conceito 2:** Explicação...\n(...)\n\n## 💡 Aplicação Prática\n(Como o estudante pode aplicar isso no mundo real? Dê 3 exemplos práticos ou casos de uso.)\n\n## 🧠 Quiz de Fixação (10 Perguntas)\n(Crie EXATAMENTE 10 perguntas de múltipla escolha com nível de dificuldade progressivo. Use o formato abaixo:)\n\n**1. Enunciado da pergunta desafiadora?**\n   - [ ] A) Alternativa errada plausível\n   - [x] B) Alternativa correta (marque com x)\n   - [ ] C) Alternativa errada\n   - [ ] D) Alternativa errada\n\n**2. Próxima pergunta...**\n(Repita até a pergunta 10)\n\n---\n*Estudo gerado via n8n pela IA do [Seu Nome]*"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "7d5ba876-b9be-4a80-9019-acb04af1b00e",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "1qm26H34Kt8pcEl1",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2c11a604-cdc1-80da-84dd-eb83eb21c54a",
+          "mode": "list",
+          "cachedResultName": "Estudos",
+          "cachedResultUrl": "https://www.notion.so/2c11a604cdc180da84ddeb83eb21c54a"
+        },
+        "title": "={{ $json.output[0].content[0].text.split('\\n')[0].replace('#', '').trim() }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Data|date",
+              "includeTime": false,
+              "date": "={{ $now }}"
+            },
+            {
+              "key": "Link Original|url",
+              "urlValue": "={{ $('On form submission').item.json.youtube_url }}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.output[0].content[0].text.slice(0, 2000) }}"
+            },
+            {
+              "textContent": "={{ $json.output[0].content[0].text.slice(2000, 4000) }}"
+            },
+            {
+              "textContent": "={{ $json.output[0].content[0].text.slice(4000, 6000) }}"
+            },
+            {
+              "textContent": "={{ $json.output[0].content[0].text.slice(6000, 8000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "f54f8404-2a6b-4c2b-bcad-b11ae59f5573",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "SYb9kQrbLad4TfhU",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "faVsWy9VTSNVIhWpR",
+          "mode": "list",
+          "cachedResultName": "Youtube Transcript Scraper (pintostudio/youtube-transcript-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/faVsWy9VTSNVIhWpR/input"
+        },
+        "customBody": "={\n  \"videoUrl\": \"{{ $('On form submission').item.json.youtube_url }}\"\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "0168a572-7eef-4949-8a2b-99bdedb7a9e5",
+      "name": "Run an Actor and get dataset",
+      "credentials": {
+        "apifyApi": {
+          "id": "UK0AO7FN5daKLH9t",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Acessa o primeiro item e entra na lista chamada \"data\"\nconst listaLegendas = $input.first().json.data;\n\n// 2. Navega por cada item da lista e pega o campo \"text\", juntando com espaço\nconst textoCompleto = listaLegendas.map(item => item.text).join(' ');\n\n// 3. Devolve para o próximo node\nreturn [{\n  json: {\n    text: textoCompleto\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "0b139e62-c7f1-4148-94b2-6ca85097f55e",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor and get dataset": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0524895e-f013-4551-86b2-e49ad1dd8482",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3c26968544fff8cb0c69cc6cd2447eaeee0f8dec7838e01b92adace346438186"
+  },
+  "id": "gLlcj8hBqvQCReWK",
+  "tags": []
+}
